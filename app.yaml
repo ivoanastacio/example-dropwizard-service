@@ -1,0 +1,27 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+logging:
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: INFO
+
+  loggers:
+    com.sun.jersey: WARN
+    org.eclipse.jetty: INFO
+
+  appenders:
+    - type: console
+
+elasticsearch:
+  configFile: elasticsearch-local-bookmanager.yml
+
+database:
+  driverClass: org.h2.Driver
+  url: jdbc:h2:~/testDB
+  user:
+  password:

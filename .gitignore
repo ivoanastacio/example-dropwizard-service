@@ -1,0 +1,21 @@
+### Maven ###
+target/
+
+## IntelliJ ##
+.idea/
+*.iml
+out/
+
+### Java ###
+*.class
+*.jar
+hs_err_pid*
+
+## OS ##
+.DS_Store
+
+## Logs ##
+*.log
+
+## Project ##
+es_data/

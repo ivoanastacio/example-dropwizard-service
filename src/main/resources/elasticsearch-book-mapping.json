@@ -1,0 +1,25 @@
+{
+    "book" : {
+        "properties" : {
+            "id" : {
+              "type": "string"
+            },
+            "name" : {
+              "type" : "string"
+            },
+            "genre" : {
+              "type" : "string"
+            },
+            "publish_year": {
+              "type" : "integer"
+            },
+            "submitted_year": {
+              "type" : "integer"
+            },
+            "tags" : {
+                "type" : "string",
+                "index_name" : "tag"
+            }
+        }
+    }
+}

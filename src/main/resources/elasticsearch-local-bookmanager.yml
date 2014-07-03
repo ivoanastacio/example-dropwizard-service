@@ -1,0 +1,19 @@
+node:
+  data: true
+  local: true
+
+cluster:
+  name: feedmanager
+
+index:
+  number_of_shards: 1
+  number_of_replicas: 0
+
+# Path to directory where to store index data allocated for this node.
+path.data: ./es_data/data
+
+# Path to temporary files:
+path.work: ./es_data/work
+
+# Path to log files:
+path.logs: ./es_data/logs

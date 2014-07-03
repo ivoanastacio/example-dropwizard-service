@@ -1,0 +1,1 @@
+select id, name, nationality from author where id = :id
