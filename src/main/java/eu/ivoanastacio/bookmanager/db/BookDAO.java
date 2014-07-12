@@ -20,6 +20,7 @@ public class BookDAO
     public BookDAO( ElasticsearchStorage esStorage )
     {
         this.elasticsearch = esStorage;
+        this.elasticsearch.prepare(ES_INDEX, ES_TYPE);
     }
 
 

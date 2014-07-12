@@ -3,7 +3,7 @@ node:
   local: true
 
 cluster:
-  name: feedmanager
+  name: bookmanager
 
 index:
   number_of_shards: 1

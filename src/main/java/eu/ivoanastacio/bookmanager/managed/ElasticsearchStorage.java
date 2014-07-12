@@ -35,10 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 
 public class ElasticsearchStorage implements Managed
@@ -54,15 +53,9 @@ public class ElasticsearchStorage implements Managed
     private final Client client;
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
 
-    private final Set<String> verifiedTypes;
-    private final Set<String> verifiedIndices;
-
 
     public ElasticsearchStorage( String configFilename )
     {
-        verifiedIndices = new HashSet<>();
-        verifiedTypes = new HashSet<>();
-
         Settings settings = loadSettingsFile( configFilename );
         NodeBuilder builder = NodeBuilder.nodeBuilder();
         node = builder.settings( settings ).node();
@@ -86,6 +79,15 @@ public class ElasticsearchStorage implements Managed
     }
 
     /**
+     * Initialize this storage with the given index and type.
+     */
+    public void prepare( String esIndex, String esType )
+    {
+        createIndexIfNotExist( esIndex );
+        createMappingsIfNotExist( esIndex, esType );
+    }
+
+    /**
      * Return true if the cluster is at a yellow or green status.
      */
     public boolean isUp()
@@ -102,12 +104,10 @@ public class ElasticsearchStorage implements Managed
     {
         List<T> result = new ArrayList<>();
 
-
-
         SearchResponse response = client.prepareSearch( esIndex )
                                         .setTypes( esType )
                                         .setSearchType( SearchType.SCAN )
-                                        .setQuery( new HashMap() ) // TODO
+                                        .setQuery( matchAllQuery() )
                                         .setScroll( SCAN_SCROLL_TIMEOUT_MILLIS )
                                         .setSize( SCROLL_PAGE_SIZE )
                                         .execute().actionGet();
@@ -174,9 +174,6 @@ public class ElasticsearchStorage implements Managed
      */
     public Optional<Boolean> index( String index, String type, Object obj, String id )
     {
-        createIndexIfNotExist( index );
-        createMappingsIfNotExist( index, type );
-
         Optional<Boolean> isNew = Optional.absent();
         try
         {
@@ -220,12 +217,7 @@ public class ElasticsearchStorage implements Managed
 
     private boolean createMappingsIfNotExist( String index, String type )
     {
-        String indexTypeName = String.format( "%s ~ %s", index, type );
-        boolean isSuccess = verifiedTypes.contains( indexTypeName );
-        if ( isSuccess )
-        {
-            return true;
-        }
+        boolean isSuccess = false;
 
         ClusterState cs = client.admin().cluster().prepareState().setIndices( index ).execute().actionGet().getState();
 
@@ -247,7 +239,6 @@ public class ElasticsearchStorage implements Managed
                 if ( response.isAcknowledged() )
                 {
                     isSuccess = true;
-                    verifiedTypes.add( indexTypeName );
                 }
             }
             catch ( IOException e )
@@ -267,11 +258,7 @@ public class ElasticsearchStorage implements Managed
 
     private boolean createIndexIfNotExist( String index )
     {
-        boolean isSuccess = verifiedIndices.contains( index );
-        if ( isSuccess )
-        {
-            return true;
-        }
+        boolean isSuccess = false;
 
         IndicesExistsRequest existsRequest = client.admin().indices().prepareExists( index ).request();
         IndicesExistsResponse existResponse = client.admin().indices().exists( existsRequest ).actionGet();
@@ -286,7 +273,6 @@ public class ElasticsearchStorage implements Managed
             if ( response.isAcknowledged() )
             {
                 isSuccess = true;
-                verifiedIndices.add( index );
             }
             else
             {
