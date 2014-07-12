@@ -8,7 +8,6 @@ import eu.ivoanastacio.bookmanager.db.BookDAO;
 import javax.validation.Valid;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -78,9 +77,4 @@ public class BooksResource
         bookDao.delete( bookId );
     }
 
-    @OPTIONS
-    public Response options()
-    {
-        return Response.ok().build();
-    }
 }
